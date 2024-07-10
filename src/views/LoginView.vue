@@ -1,5 +1,9 @@
-<script setup></script>
-
+<script setup>
+import '@passageidentity/passage-elements/passage-auth'
+</script>
 <template>
-    <h2>Página de login</h2>
+  <h1>Página de Login</h1>
+  <div class="authContainer">
+    <passage-auth app-id="NHCUTXYQSJjApyaPHan94R1P"></passage-auth>
+  </div>
 </template>
