@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
-import { useProductStore } from '../stores/products'
+import { useProductStore } from '../stores/category'
 
 import { formatDescription, formatPrice, formatTitle } from '@/helpers/format'
 
@@ -99,3 +99,4 @@ onMounted(async () => {
   color: #535050;
 }
 </style>
+../stores/category
