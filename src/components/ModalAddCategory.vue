@@ -1,6 +1,22 @@
 <script setup>
-const emit = defineEmits(['close'])
+import { reactive, defineEmits } from 'vue';
+import { useCategoryStore } from '@/stores/category';
+
+const emit = defineEmits(['close']);
+
+const categoryStore = useCategoryStore();
+
+const category = reactive({
+  name: '',
+  icon: '',
+});
+
+const createCategory = async () => {
+  await categoryStore.createCategory(category);
+  emit('close');
+};
 </script>
+
 <template>
   <div class="modal">
     <div class="modal-content">
@@ -13,29 +29,48 @@ const emit = defineEmits(['close'])
       <form class="form" @submit.prevent="createCategory">
         <div class="row-form">
           <label for="name">Nome</label>
-          <input type="text" id="name" />
+          <input type="text" id="name" v-model="category.name" />
         </div>
         <div class="row-form">
           <label for="icon">Ícone</label>
-          <input type="text" id="icon" />
+          <input type="text" id="icon" v-model="category.icon" />
         </div>
         <button class="btn-send" type="submit">Adicionar</button>
       </form>
     </div>
   </div>
 </template>
+
 <style scoped>
 .modal {
   position: fixed;
   top: 0;
   left: 0;
-  height: 100%;
   width: 100%;
-  background-color: rgb(0, 0, 0, 0.5);
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 100;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 30%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
 }
 
 .btn-close {
@@ -73,23 +108,5 @@ const emit = defineEmits(['close'])
   font-size: 1.3rem;
   cursor: pointer;
   width: 200px;
-}
-
-.modal-content {
-  background-color: white;
-  width: 30%;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.modal-header h2 {
-  font-size: 1.5rem;
 }
 </style>

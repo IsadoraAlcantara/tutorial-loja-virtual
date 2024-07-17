@@ -1,58 +1,107 @@
 <script setup>
-import { useCategoryStore } from '@/stores/category'
-import { onMounted, ref } from 'vue'
-import ModalAddCategory from '../components/ModalAddCategory.vue'
-const categoryStore = useCategoryStore()
+import { onMounted, reactive, ref } from 'vue';
 
-const showModal = ref(false)
-const previewImage = ref('')
-const file = ref(null)
+import ModalAddCategory from '@/components/ModalAddCategory.vue';
+import { useCategoryStore } from '@/stores/category';
+import { useProductStore } from '@/stores/product';
+import { useUploaderStore } from '@/stores/uploader';
+
+const categoryStore = useCategoryStore();
+const productStore = useProductStore();
+const uploaderStore = useUploaderStore();
+
+const showModal = ref(false);
+const coverUrl = ref('');
+
+const file = ref(null);
+const previewImage = ref('');
+
+const product = reactive({
+  title: '',
+  description: '',
+  category: '',
+  image_attachment_key: '',
+  price: '',
+  stock: '',
+});
 
 const uploadImage = (e) => {
-  file.value = e.target.files[0]
-  previewImage.value = URL.createObjectURL(e.target.files[0])
+  file.value = e.target.files[0];
+  previewImage.value = URL.createObjectURL(e.target.files[0]);
+};
+
+async function save() {
+  product.image_attachment_key = await uploaderStore.uploadImage(file.value);
+  await productStore.createProduct(product);
+  Object.assign(product, {
+    title: '',
+    description: '',
+    category: '',
+    image_attachment_key: '',
+    price: '',
+    stock: '',
+  });
 }
 
 onMounted(async () => {
-    await categoryStore.getCategories()
-})
+  await categoryStore.getCategories();
+});
 </script>
 <template>
+  
   <h1>Adicionar Produto</h1>
-  <form @submit.prevent="" class="form">
+  <form class="form" @submit.prevent="save">
     <div class="row-form">
       <label for="title">Título</label>
-      <input type="text" id="title" />
+      <input type="text" id="title" v-model="product.title" />
     </div>
     <div class="row-form">
       <label for="description">Descrição</label>
-      <input type="text" id="description" />
+      <textarea id="description" v-model="product.description"></textarea>
     </div>
-    <div class="row-from">
+    <div class="row-form">
       <label for="category">Categoria</label>
-      <select id="category">
-        <option value="" disabled>Selecione uma categoria</option>
-      </select>
-      <button class="btn-icon" @click="showModal = true">+</button>
+      <div class="row ">
+        <select id="category" v-model="product.category">
+          <option value="" disabled>Selecione uma categoria</option>
+          <option
+            v-for="category in categoryStore.categories"
+            :key="category.id"
+            :value="category.id"
+          >
+            {{ category.name }}
+          </option>
+        </select>
+        <button class="btn-icon" @click="showModal = !showModal">+</button>
+      </div>
     </div>
     <div class="row-form">
       <label for="image">Imagem</label>
       <div class="row">
         <input type="file" id="image" @change="uploadImage" />
-        <img v-if="previewImage" :src="previewImage" class="previewImage" alt="preview" />
+        <img
+          v-if="previewImage"
+          :src="previewImage"
+          class="previewImage"
+          alt="preview"
+        />
       </div>
     </div>
     <div class="row-form">
       <label for="price">Preço</label>
-      <input type="number" id="price" />
+      <input type="number" id="price" v-model="product.price" />
     </div>
     <div class="row-form">
       <label for="stock">Estoque</label>
-      <input type="number" id="stock" />
+      <input type="number" id="stock" v-model="product.stock" />
     </div>
+    <button class="btn-send" type="submit">Adicionar</button>
   </form>
-  <ModalAddCategory v-if="showModal" @close="showModal = false" />
+  
+
+  <modal-add-category v-if="showModal" @close="showModal = !showModal" />
 </template>
+
 <style scoped>
 .form {
   display: flex;
